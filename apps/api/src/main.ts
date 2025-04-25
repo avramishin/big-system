@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -18,20 +19,23 @@ async function bootstrap() {
     { logger: console },
   );
 
+  const configService = app.get(ConfigService);
+
   await app.register(fastifyCors, {
     credentials: true,
   });
 
   await app.register(fastifyCompress);
 
+  app.useWebSocketAdapter(new WsAdapter(app));
   app.enableShutdownHooks();
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
     }),
   );
-  app.useWebSocketAdapter(new WsAdapter(app));
+
   await app.init();
-  await app.listen(process.env.API_PORT ?? 3000, '0.0.0.0');
+  await app.listen(configService.get<number>('API_PORT'), '0.0.0.0');
 }
 bootstrap();
