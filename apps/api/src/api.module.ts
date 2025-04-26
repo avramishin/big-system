@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ApiController } from './api.controller';
+import { ApiService } from './api.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
-import { AppGateway } from './app.gateway';
+import { ApiGateway } from './api.gateway';
 
 import configuration from './config/configuration';
 @Module({
@@ -17,7 +17,7 @@ import configuration from './config/configuration';
     ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
   ],
-  controllers: [AppController],
-  providers: [AppService, AppGateway],
+  controllers: [ApiController],
+  providers: [ApiService, ApiGateway],
 })
-export class AppModule {}
+export class ApiModule {}

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/websockets';
 
 @WebSocketGateway({ path: '/v1/ws' })
-export class AppGateway implements OnGatewayDisconnect, OnGatewayConnection {
+export class ApiGateway implements OnGatewayDisconnect, OnGatewayConnection {
   protected clients = new Map<string, any>();
 
   constructor() {}

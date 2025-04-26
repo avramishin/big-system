@@ -1,13 +1,13 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { AppService } from './app.service';
+import { ApiService } from './api.service';
 import { HelloDto } from './dto/hello.dto';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+export class ApiController {
+  constructor(private readonly apiService: ApiService) {}
 
   @Get()
   getHello(@Query() args: HelloDto) {
-    return this.appService.getHello();
+    return this.apiService.getHello();
   }
 }

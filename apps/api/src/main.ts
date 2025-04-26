@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { ApiModule } from './api.module';
 import { ConfigService } from '@nestjs/config';
 import {
   FastifyAdapter,
@@ -14,7 +14,7 @@ import fastifyCompress from '@fastify/compress';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
+    ApiModule,
     new FastifyAdapter(),
     { logger: console },
   );
