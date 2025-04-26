@@ -44,7 +44,7 @@ export class MonologClient extends ClusterRestClient {
    * Search for logs based on provided criteria
    *
    * @param searchLogsDto - Search criteria containing:
-   *   - limit: limit for pagination
+   *   - limit: optional limit for pagination
    *   - offset: offset for pagination
    *   - time_from: optional from/to timestamp milliseconds to filter by
    *   - time_to: optional from/to timestamp milliseconds to filter by
@@ -54,7 +54,7 @@ export class MonologClient extends ClusterRestClient {
    *   - keyword: optional keyword to search across kw_1 through kw_10 fields
    * @returns Array of logs matching the search criteria
    */
-  async searchLogs(searchLogsDto: SearchLogsDto) {
+  async search(searchLogsDto: SearchLogsDto) {
     return await this.request<MonologLog[]>('/logs/search', {
       method: 'GET',
       params: searchLogsDto,
@@ -66,7 +66,7 @@ export class MonologClient extends ClusterRestClient {
    *
    * @returns Number of logs deleted
    */
-  async deleteExpiredLogs() {
+  async deleteExpired() {
     return await this.request<number>('/logs/delete-expired', {
       method: 'DELETE',
     });
@@ -77,7 +77,7 @@ export class MonologClient extends ClusterRestClient {
    *
    * @returns Number of logs deleted
    */
-  async deleteAllLogs() {
+  async deleteAll() {
     return await this.request<number>('/logs/delete-all', {
       method: 'DELETE',
     });

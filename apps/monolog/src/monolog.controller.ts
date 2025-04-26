@@ -9,12 +9,12 @@ export class MonologController {
   constructor(private readonly monologService: MonologService) {}
 
   @Post('v1/logs')
-  async createLog(@Body() dto: CreateLogDto) {
+  async register(@Body() dto: CreateLogDto) {
     return await this.monologService.createLog(dto);
   }
 
   @Get('v1/logs/search')
-  async searchLogs(@Query() dto: SearchLogsDto) {
+  async search(@Query() dto: SearchLogsDto) {
     const logs = await this.monologService.searchLogs(dto);
     logs.forEach((log) => {
       if (log.ctx) {
@@ -26,12 +26,12 @@ export class MonologController {
   }
 
   @Delete('v1/logs/delete-expired')
-  async deleteExpiredLogs() {
+  async deleteExpired() {
     return await this.monologService.deleteExpiredLogs();
   }
 
   @Delete('v1/logs/delete-all')
-  async deleteAllLogs() {
+  async deleteAll() {
     return await this.monologService.deleteAllLogs();
   }
 }

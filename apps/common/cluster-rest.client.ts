@@ -28,10 +28,15 @@ export abstract class ClusterRestClient {
     path: string,
     config: AxiosRequestConfig,
   ): Promise<T> {
-    const headers = {
-      'X-Cluster-Security-Key': this.cluster_sercurity_key,
-      'X-Cluster-Source': this.source,
-    };
+    const headers: Record<string, string> = {};
+
+    if (this.cluster_sercurity_key) {
+      headers['X-Cluster-Security-Key'] = this.cluster_sercurity_key;
+    }
+
+    if (this.source) {
+      headers['X-Cluster-Source'] = this.source;
+    }
 
     try {
       const response = await axios<T>({

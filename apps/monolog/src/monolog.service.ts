@@ -14,7 +14,7 @@ export class MonologService {
   /**
    * Search logs based on provided search criteria
    * @param dto SearchLogsDto containing search parameters:
-   *   - limit: limit for pagination
+   *   - limit: optional limit for pagination
    *   - offset: offset for pagination
    *   - time_from: optional from/to timestamp milliseconds to filter by
    *   - time_to: optional from/to timestamp milliseconds to filter by

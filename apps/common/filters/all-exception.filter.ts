@@ -1,3 +1,4 @@
+import { FastifyRequest, FastifyReply } from 'fastify';
 import {
   ExceptionFilter,
   Catch,
@@ -5,15 +6,13 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { parseNodeErrorStack } from '../parse-node-error-stack';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   catch(e: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<FastifyReply>();
-    const request = ctx.getRequest<FastifyRequest>();
+    const res = ctx.getResponse<FastifyReply>();
+    const req = ctx.getRequest<FastifyRequest>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = e.message;
@@ -30,16 +29,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
     console.error(
       JSON.stringify({
         message,
-        url: request.url,
-        body: request.body,
-        query: request.query,
+        url: req.url,
+        body: req.body,
+        query: req.query,
       }),
     );
 
-    response.status(status).send({
+    res.status(status).send({
       statusCode: status,
       message,
-      path: request.url,
+      path: req.url,
     });
   }
 }
