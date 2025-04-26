@@ -16,6 +16,7 @@ export class CreateLogDto {
   svc: string;
 
   @IsNotEmpty({ message: 'Message is required' })
+  @Length(1, 255, { message: 'Messages length should be max 255 bytes' })
   msg: string;
 
   @IsNotEmpty({

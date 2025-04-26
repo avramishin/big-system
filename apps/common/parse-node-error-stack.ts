@@ -14,7 +14,7 @@ export function parseNodeErrorStack(stack: string) {
 
       if (match) {
         let file = match[2];
-        let m = file.match('.+/src/(.+)');
+        let m = file.match('.+/(dist|src)/(.+)');
         if (m) {
           file = m[1];
         }

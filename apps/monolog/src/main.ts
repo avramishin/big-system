@@ -1,3 +1,5 @@
+import 'source-map-support/register';
+
 import { NestFactory } from '@nestjs/core';
 import { MonologModule } from './monolog.module';
 import { ConfigService } from '@nestjs/config';
@@ -7,6 +9,7 @@ import {
 } from '@nestjs/platform-fastify';
 
 import { ValidationPipe } from '@nestjs/common';
+import { AllExceptionsFilter } from '../../common/filters/all-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -18,6 +21,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.enableShutdownHooks();
+  app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
