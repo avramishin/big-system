@@ -15,8 +15,6 @@ async function main() {
   const logs = await monolog.search({
     limit: 10,
     offset: 0,
-    time_from: new Date().getTime() + 1000,
-    time_to: new Date().getTime() + 10000,
     msg: 'test',
   });
 
