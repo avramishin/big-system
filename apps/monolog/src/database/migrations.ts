@@ -17,10 +17,11 @@ export class MigrationSource {
             return knex.schema.createTable('monolog_logs', function (table) {
               // Columns
               table.increments('id').unsigned().notNullable().primary();
-              table.string('name', 255).notNullable();
-              table.text('data').nullable();
-              table.timestamp('created_at').notNullable();
+              table.string('svc', 64).notNullable();
               table.string('rrn', 8).nullable();
+              table.string('msg', 255).notNullable();
+              table.text('ctx').nullable();
+              table.timestamp('created_at').notNullable();
               table.timestamp('expires_at').notNullable();
 
               // Keyword columns
@@ -29,9 +30,10 @@ export class MigrationSource {
               }
 
               // Indexes
-              table.index('name', 'logs_name_index');
-              table.index('created_at', 'logs_created_at_index');
+              table.index('svc', 'logs_svc_index');
               table.index('rrn', 'logs_rrn_index');
+              table.index('msg', 'logs_msg_index');
+              table.index('created_at', 'logs_created_at_index');
               table.index('expires_at', 'logs_expires_at_index');
 
               // Keyword indexes
