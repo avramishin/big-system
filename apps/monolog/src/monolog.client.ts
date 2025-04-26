@@ -44,8 +44,10 @@ export class MonologClient extends ClusterRestClient {
    * Search for logs based on provided criteria
    *
    * @param searchLogsDto - Search criteria containing:
-   *   - pager: limit and offset for pagination
-   *   - dateRange: optional from/to dates to filter by
+   *   - limit: limit for pagination
+   *   - offset: offset for pagination
+   *   - time_from: optional from/to timestamp milliseconds to filter by
+   *   - time_to: optional from/to timestamp milliseconds to filter by
    *   - msg: optional message prefix to filter by
    *   - rrn: optional reference number to filter by
    *   - svc: optional service name to filter by

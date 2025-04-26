@@ -1,6 +1,5 @@
-import { IsOptional } from 'class-validator';
-import { PagerDto } from '../../../common/dto/pager.dto';
-import { DateRangeDto } from 'apps/common/dto/date-range.dto';
+import { IsOptional, IsPositive, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class SearchLogsDto {
   @IsOptional()
@@ -16,8 +15,22 @@ export class SearchLogsDto {
   msg?: string;
 
   @IsOptional()
-  dateRange?: DateRangeDto;
+  @IsPositive()
+  @Type(() => Number)
+  time_from?: number;
 
   @IsOptional()
-  pager?: PagerDto;
+  @IsPositive()
+  @Type(() => Number)
+  time_to?: number;
+
+  @IsOptional()
+  @IsPositive()
+  @Type(() => Number)
+  limit?: number;
+
+  @IsOptional()
+  @Min(0)
+  @Type(() => Number)
+  offset?: number;
 }

@@ -14,8 +14,10 @@ export class MonologService {
   /**
    * Search logs based on provided search criteria
    * @param dto SearchLogsDto containing search parameters:
-   *   - pager: limit and offset for pagination
-   *   - dateRange: optional from/to dates to filter by
+   *   - limit: limit for pagination
+   *   - offset: offset for pagination
+   *   - time_from: optional from/to timestamp milliseconds to filter by
+   *   - time_to: optional from/to timestamp milliseconds to filter by
    *   - msg: optional message prefix to filter by
    *   - rrn: optional reference number to filter by
    *   - svc: optional service name to filter by
@@ -25,16 +27,16 @@ export class MonologService {
   async searchLogs(dto: SearchLogsDto) {
     const query = this.db<MonologLog>(this.TABLE_LOGS)
       .select('id', 'svc', 'msg', 'ctx', 'rrn', 'created_at')
-      .limit(dto.pager?.limit || 50)
-      .offset(dto.pager?.offset || 0)
+      .limit(dto.limit || 50)
+      .offset(dto.offset || 0)
       .orderBy('id', 'desc');
 
-    if (dto.dateRange?.from) {
-      query.where('created_at', '>=', dto.dateRange.from);
+    if (dto.time_from) {
+      query.where('created_at', '>=', dto.time_from);
     }
 
-    if (dto.dateRange?.to) {
-      query.where('created_at', '<=', dto.dateRange.to);
+    if (dto.time_to) {
+      query.where('created_at', '<=', dto.time_to);
     }
 
     if (dto.msg) {

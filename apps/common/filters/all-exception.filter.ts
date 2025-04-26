@@ -23,6 +23,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = ((e as HttpException).getResponse() as any).message;
     }
 
+    if (Array.isArray(message)) {
+      message = message.join(', ');
+    }
+
     console.error(
       JSON.stringify({
         message,
