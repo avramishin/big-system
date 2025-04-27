@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { MonologModule } from './monolog.module';
+import { EchoModule } from './echo.module';
 import { ConfigService } from '@nestjs/config';
 import {
   FastifyAdapter,
@@ -11,7 +11,7 @@ import { AllExceptionsFilter } from '../../common/filters/all-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
-    MonologModule,
+    EchoModule,
     new FastifyAdapter(),
     { logger: console },
   );
@@ -28,8 +28,8 @@ async function bootstrap() {
 
   await app.init();
 
-  const port = configService.get<number>('MONOLOG_PORT');
-  console.log(`MONOLOG PORT ${port}`);
+  const port = configService.get<number>('ECHO_PORT');
+  console.log(`ECHO PORT ${port}`);
 
   await app.listen(port, '0.0.0.0');
 }

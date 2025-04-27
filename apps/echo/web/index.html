@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Echo Client</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 30px;
+        background: #f9f9f9;
+      }
+      input,
+      button {
+        padding: 10px;
+        margin: 5px 0;
+        width: 300px;
+        font-size: 16px;
+      }
+      #messages {
+        margin-top: 20px;
+        background: white;
+        padding: 15px;
+        border: 1px solid #ccc;
+        height: 300px;
+        overflow-y: scroll;
+      }
+      .message {
+        border-bottom: 1px solid #eee;
+        padding: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Echo Client</h1>
+
+    <div>
+      <input type="text" id="apiKey" placeholder="Enter API Key" />
+      <br />
+      <input type="text" id="channel" placeholder="Enter Channel Name" />
+      <br />
+      <button onclick="connect()">Connect & Subscribe</button>
+      <button onclick="sendTest()">Send Test Event</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+      let socket;
+
+      function connect() {
+        const apiKey = document.getElementById('apiKey').value;
+        const channel = document.getElementById('channel').value;
+
+        if (!apiKey || !channel) {
+          alert('Please enter both API Key and Channel name');
+          return;
+        }
+
+        socket = io('http://localhost:3002', {
+          auth: {
+            clusterSecurityKey: apiKey,
+          },
+        });
+
+        socket.on('connect', () => {
+          console.log('Connected to Echo server');
+          socket.emit('topic.subscribe', channel);
+          addMessage('Connected and subscribed to "' + channel + '"');
+        });
+
+        socket.on('event.receive', (data) => {
+          console.log('Received event:', data);
+          addMessage('Received: ' + JSON.stringify(data));
+        });
+
+        socket.on('error', (err) => {
+          console.error('Error:', err);
+          addMessage('Error: ' + err);
+        });
+      }
+
+      function sendTest() {
+        const channel = document.getElementById('channel').value;
+        if (!socket || !socket.connected) {
+          alert('Please connect first!');
+          return;
+        }
+
+        const payload = {
+          title: 'Test Event',
+          body: 'This is a test message',
+        };
+
+        socket.emit('event.send', {
+          topic: channel,
+          payload: payload,
+        });
+
+        addMessage('Test event sent to "' + channel + '"');
+      }
+
+      function addMessage(msg) {
+        const messages = document.getElementById('messages');
+        const div = document.createElement('div');
+        div.className = 'message';
+        div.innerText = msg;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+      }
+    </script>
+  </body>
+</html>

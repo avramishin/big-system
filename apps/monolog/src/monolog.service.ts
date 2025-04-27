@@ -76,7 +76,7 @@ export class MonologService {
    *   - keywords: array of keywords to search across
    * @returns Promise<number> ID of the newly created log entry
    */
-  async createLog(dto: CreateLogDto) {
+  async createLog(dto: CreateLogDto, clusterService: string) {
     let ctx: string = null;
 
     if (dto.ctx) {
@@ -90,7 +90,7 @@ export class MonologService {
 
     const record: MonologLog = {
       msg: dto.msg,
-      svc: dto.svc,
+      svc: clusterService,
       rrn: dto.rrn,
       ctx,
       created_at: new Date().valueOf(),

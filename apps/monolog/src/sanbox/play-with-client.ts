@@ -1,13 +1,13 @@
+import { MonologLogTtl } from '../enums/monolog-log-ttl.enum';
 import { MonologClient } from '../monolog.client';
 
 const monolog = new MonologClient('http://localhost:3001/v1', '124567890');
 
 async function main() {
   const log = await monolog.register({
-    svc: 'test',
     msg: 'test',
     ctx: { d: 1 },
-    exp: 3000,
+    exp: MonologLogTtl.day_1,
   });
 
   console.log(log);
@@ -23,8 +23,8 @@ async function main() {
   const deleted = await monolog.deleteExpired();
   console.log(deleted);
 
-  const deletedAll = await monolog.deleteAll();
-  console.log(deletedAll);
+  // const deletedAll = await monolog.deleteAll();
+  // console.log(deletedAll);
 }
 
 main();

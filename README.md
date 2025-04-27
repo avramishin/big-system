@@ -1,3 +1,7 @@
+### Generic
+
+To generate new app `nest generate app my-new-app`
+
 ### API
 
 ### Monolog

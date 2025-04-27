@@ -2,10 +2,10 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 export abstract class ClusterRestClient {
   constructor(
-    private baseUrl: string,
-    private cluster_sercurity_key: string,
-    private source?: string,
-    private timeout?: number,
+    protected baseUrl: string,
+    protected cluster_security_key: string,
+    protected cluster_service: string,
+    protected timeout?: number,
   ) {}
 
   setBaseUrl(baseUrl: string) {
@@ -13,11 +13,11 @@ export abstract class ClusterRestClient {
   }
 
   setClusterSecurityKey(cluster_sercurity_key: string) {
-    this.cluster_sercurity_key = cluster_sercurity_key;
+    this.cluster_security_key = cluster_sercurity_key;
   }
 
-  setSource(source: string) {
-    this.source = source;
+  setClusterService(service: string) {
+    this.cluster_service = service;
   }
 
   setTimeout(timeout: number) {
@@ -28,15 +28,10 @@ export abstract class ClusterRestClient {
     path: string,
     config: AxiosRequestConfig,
   ): Promise<T> {
-    const headers: Record<string, string> = {};
-
-    if (this.cluster_sercurity_key) {
-      headers['X-Cluster-Security-Key'] = this.cluster_sercurity_key;
-    }
-
-    if (this.source) {
-      headers['X-Cluster-Source'] = this.source;
-    }
+    const headers: Record<string, string> = {
+      'X-Cluster-Security-Key': this.cluster_security_key,
+      'X-Cluster-Service': this.cluster_service || 'UNKNOWN',
+    };
 
     try {
       const response = await axios<T>({

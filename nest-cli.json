@@ -19,6 +19,15 @@
         "tsConfigPath": "apps/api/tsconfig.app.json"
       }
     },
+    "echo": {
+      "type": "application",
+      "root": "apps/echo",
+      "entryFile": "main",
+      "sourceRoot": "apps/echo/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/echo/tsconfig.app.json"
+      }
+    },
     "monolog": {
       "type": "application",
       "root": "apps/monolog",

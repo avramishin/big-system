@@ -10,11 +10,9 @@ import {
   Min,
   Max,
 } from 'class-validator';
+import { MonologLogTtl } from '../enums/monolog-log-ttl.enum';
 
 export class CreateLogDto {
-  @IsNotEmpty({ message: 'Service name is required' })
-  svc: string;
-
   @IsNotEmpty({ message: 'Message is required' })
   @Length(1, 255, { message: 'Messages length should be max 255 bytes' })
   msg: string;
@@ -25,7 +23,7 @@ export class CreateLogDto {
   @IsPositive({ message: 'Expiration should be positive number of seconds' })
   @Min(60, { message: 'Min expiration time is 60 seconds' })
   @Max(1209600, { message: 'Max expiration time is 2 weeks, 1209600 seconds' })
-  exp: number;
+  exp: MonologLogTtl;
 
   @IsOptional()
   @IsNotEmpty()

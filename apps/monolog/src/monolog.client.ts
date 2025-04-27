@@ -30,14 +30,36 @@ export class MonologClient extends ClusterRestClient {
    *   - msg: log message text
    *   - ctx: optional context object
    *   - rrn: optional reference number
+   *   - exp: expiration time in seconds
    *   - keywords: optional keywords to search across kw_1 through kw_10 fields
    * @returns Number of logs created
    */
   async register(log: CreateLogDto) {
-    return await this.request<number[]>('/logs', {
-      method: 'POST',
-      data: log,
-    });
+    // Always write to console log
+    console.log(
+      JSON.stringify({
+        message: log.msg,
+        ctx: log.ctx,
+        rrn: log.rrn,
+      }),
+    );
+
+    // Send data to remote service only in case if base_url and cluster_sercurity_key is set
+    if (this.baseUrl && this.cluster_security_key) {
+      try {
+        return await this.request<number[]>('/logs', {
+          method: 'POST',
+          data: { ...log },
+        });
+      } catch (e) {
+        console.error(
+          JSON.stringify({
+            message: 'MONOLOG_REGISTER_ERROR',
+            error: e.message,
+          }),
+        );
+      }
+    }
   }
 
   /**
