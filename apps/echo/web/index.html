@@ -7,50 +7,99 @@
     <style>
       body {
         font-family: sans-serif;
-        margin: 2rem;
+        background: #f0f2f5;
+        margin: 0;
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+      }
+      .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #333;
+      }
+      .section {
+        margin-bottom: 1.5rem;
       }
       input,
       button {
-        margin: 0.5rem 0;
-        padding: 0.5rem;
-        width: 100%;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        width: 100%; /* Полная ширина для всех */
+        box-sizing: border-box; /* Учитываем padding и border в ширине */
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+      button:hover {
+        background-color: #45a049;
       }
       #messages {
         border: 1px solid #ccc;
         padding: 1rem;
-        height: 200px;
-        overflow-y: scroll;
+        height: 250px;
+        overflow-y: auto;
         background: #f9f9f9;
         margin-top: 1rem;
+        border-radius: 6px;
       }
       .message {
         margin-bottom: 0.5rem;
+        word-wrap: break-word;
       }
     </style>
   </head>
   <body>
-    <h1>Socket.IO Клиент</h1>
+    <div class="container">
+      <h1>Socket.IO Клиент</h1>
 
-    <div id="connectSection">
-      <input
-        id="apiKeyInput"
-        placeholder="Cluster Security Key"
-        value="showmethemoney"
-      />
-      <input id="serviceInput" placeholder="Cluster Service" value="WEB" />
-      <button id="connectBtn">Подключиться</button>
-    </div>
+      <div id="connectSection" class="section">
+        <input
+          id="serverUrlInput"
+          placeholder="URL сервера"
+          value="http://localhost:3002"
+        />
+        <input
+          id="apiKeyInput"
+          placeholder="Cluster Security Key"
+          value="showmethemoney"
+        />
+        <input id="serviceInput" placeholder="Cluster Service" value="WEB" />
+        <button id="connectBtn">Подключиться</button>
+      </div>
 
-    <div id="subscribeSection" style="display: none">
-      <input id="channelInput" placeholder="Имя канала" />
-      <button id="subscribeBtn">Подписаться на канал</button>
-    </div>
+      <div id="subscribeSection" class="section" style="display: none">
+        <input id="channelInput" placeholder="Имя канала" />
+        <button id="subscribeBtn">Подписаться на канал</button>
+      </div>
 
-    <div id="chatSection" style="display: none">
-      <h2>Канал: <span id="currentChannel"></span></h2>
-      <div id="messages"></div>
-      <input id="messageInput" placeholder="Ваше сообщение" />
-      <button id="sendBtn">Отправить</button>
+      <div id="chatSection" class="section" style="display: none">
+        <h2>Канал: <span id="currentChannel"></span></h2>
+        <div id="messages"></div>
+        <input id="messageInput" placeholder="Ваше сообщение" />
+        <button id="sendBtn">Отправить</button>
+      </div>
     </div>
 
     <script>
@@ -61,7 +110,7 @@
         .getElementById('messageInput')
         .addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
-            e.preventDefault(); // чтобы не было переноса строки
+            e.preventDefault();
             sendMessage();
           }
         });
@@ -83,8 +132,9 @@
       document.getElementById('connectBtn').onclick = () => {
         const apiKey = document.getElementById('apiKeyInput').value;
         const service = document.getElementById('serviceInput').value || 'WEB';
+        const serverUrl = document.getElementById('serverUrlInput').value;
 
-        socket = io('http://localhost:3002', {
+        socket = io(serverUrl, {
           auth: {
             clusterSecurityKey: apiKey,
             clusterService: service,
@@ -101,16 +151,14 @@
           alert('Ошибка подключения: ' + err.message);
         });
 
-        // Слушаем входящие сообщения по событию event.receive
         socket.on('event.receive', (data) => {
-          // Получаем текущее время в формате HH:MM:SS
           const now = new Date();
           const time = now.toLocaleTimeString('ru-RU', { hour12: false });
 
           const messagesDiv = document.getElementById('messages');
           const messageEl = document.createElement('div');
           messageEl.className = 'message';
-          messageEl.textContent = `[  ${time}] ${data}`;
+          messageEl.textContent = `[${time}] ${data}`;
           messagesDiv.appendChild(messageEl);
           messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
@@ -124,9 +172,7 @@
         document.getElementById('currentChannel').innerText = currentChannel;
         document.getElementById('chatSection').style.display = 'block';
 
-        // Подписываемся через topic.subscribe
         socket.emit('topic.subscribe', channel);
-
         console.log('Subscribed to', channel);
       };
     </script>
