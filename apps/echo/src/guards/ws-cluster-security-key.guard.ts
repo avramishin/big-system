@@ -17,6 +17,10 @@ export class WsClusterSecurityKeyGuard implements CanActivate {
       return false;
     }
 
+    client.data.cluster_security_key = currentKey;
+    client.data.cluster_service =
+      client.handshake.auth?.clusterService || 'UNKNOWN';
+
     return true;
   }
 }

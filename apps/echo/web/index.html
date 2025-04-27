@@ -60,6 +60,7 @@
         socket = io('http://localhost:3002', {
           auth: {
             clusterSecurityKey: apiKey,
+            clusterService: 'WEB',
           },
         });
 

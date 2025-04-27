@@ -29,7 +29,7 @@ import { MonologClient } from 'apps/monolog/src/monolog.client';
       useFactory: async (configService: ConfigService) => {
         return new MonologClient(
           configService.get('ECHO_MONOLOG_URL'),
-          configService.get('CLUSTER_SECURITY_KEY'),
+          configService.get('ECHO_CLUSTER_SECURITY_KEY'),
           'ECHO',
           5_000,
         );

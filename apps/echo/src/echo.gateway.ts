@@ -27,16 +27,24 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     this.monolog.register({
-      msg: 'CLIENT_CONNECTED',
-      ctx: client.id,
+      msg: 'CLIENT_CONN',
+      ctx: {
+        id: client.id,
+        svc: client.data.cluster_service,
+        cc: this.server.engine.clientsCount,
+      },
       exp: MonologLogTtl.min_1,
     });
   }
 
   async handleDisconnect(client: Socket) {
     this.monolog.register({
-      msg: 'CLIENT_DICONNECTED',
-      ctx: client.id,
+      msg: 'CLIENT_DICONN',
+      ctx: {
+        id: client.id,
+        svc: client.data.cluster_service,
+        cc: this.server.engine.clientsCount,
+      },
       exp: MonologLogTtl.min_1,
     });
   }
@@ -48,8 +56,8 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     this.monolog.register({
-      msg: 'CLIENT_SUBSCRIBE',
-      ctx: [client.id, topic],
+      msg: 'CLIENT_SUB',
+      ctx: { id: client.id, topic, service: client.data.cluster_service },
       exp: MonologLogTtl.min_1,
     });
     client.join(topic);
@@ -62,8 +70,8 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     this.monolog.register({
-      msg: 'CLIENT_UNSUBSCRIBE',
-      ctx: [client.id, topic],
+      msg: 'CLIENT_UNSUB',
+      ctx: { id: client.id, topic, service: client.data.cluster_service },
       exp: MonologLogTtl.min_1,
     });
 
@@ -78,7 +86,11 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.monolog.register({
       msg: 'CLIENT_SEND',
-      ctx: [client.id, data.topic],
+      ctx: {
+        id: client.id,
+        topic: data.topic,
+        service: client.data.cluster_service,
+      },
       exp: MonologLogTtl.min_1,
     });
 
