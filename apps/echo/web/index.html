@@ -105,6 +105,7 @@
     <script>
       let socket;
       let currentChannel = '';
+      let subscribtions = new Set();
 
       document
         .getElementById('messageInput')
@@ -139,16 +140,20 @@
             clusterSecurityKey: apiKey,
             clusterService: service,
           },
+          transports: ['websocket'],
         });
 
         socket.on('connect', () => {
           console.log('Connected');
           document.getElementById('subscribeSection').style.display = 'block';
+          subscribtions.forEach((topic) => {
+            socket.emit('topic.subscribe', topic);
+            console.log('Subscribed to', topic);
+          });
         });
 
         socket.on('connect_error', (err) => {
           console.error('Connection error:', err.message);
-          alert('Ошибка подключения: ' + err.message);
         });
 
         socket.on('event.receive', (data) => {
@@ -165,15 +170,16 @@
       };
 
       document.getElementById('subscribeBtn').onclick = () => {
-        const channel = document.getElementById('channelInput').value;
-        if (!channel) return;
+        const topic = document.getElementById('channelInput').value;
+        if (!topic) return;
 
-        currentChannel = channel;
+        currentChannel = topic;
         document.getElementById('currentChannel').innerText = currentChannel;
         document.getElementById('chatSection').style.display = 'block';
 
-        socket.emit('topic.subscribe', channel);
-        console.log('Subscribed to', channel);
+        subscribtions.add(topic);
+        socket.emit('topic.subscribe', topic);
+        console.log('Subscribed to', topic);
       };
     </script>
   </body>
