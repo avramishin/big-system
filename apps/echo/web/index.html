@@ -1,114 +1,134 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Echo Client</title>
+    <title>Socket.IO Клиент</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
       body {
-        font-family: Arial, sans-serif;
-        margin: 30px;
-        background: #f9f9f9;
+        font-family: sans-serif;
+        margin: 2rem;
       }
       input,
       button {
-        padding: 10px;
-        margin: 5px 0;
-        width: 300px;
-        font-size: 16px;
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        width: 100%;
       }
       #messages {
-        margin-top: 20px;
-        background: white;
-        padding: 15px;
         border: 1px solid #ccc;
-        height: 300px;
+        padding: 1rem;
+        height: 200px;
         overflow-y: scroll;
+        background: #f9f9f9;
+        margin-top: 1rem;
       }
       .message {
-        border-bottom: 1px solid #eee;
-        padding: 5px 0;
+        margin-bottom: 0.5rem;
       }
     </style>
   </head>
   <body>
-    <h1>Echo Client</h1>
+    <h1>Socket.IO Клиент</h1>
 
-    <div>
-      <input type="text" id="apiKey" placeholder="Enter API Key" />
-      <br />
-      <input type="text" id="channel" placeholder="Enter Channel Name" />
-      <br />
-      <button onclick="connect()">Connect & Subscribe</button>
-      <button onclick="sendTest()">Send Test Event</button>
+    <div id="connectSection">
+      <input
+        id="apiKeyInput"
+        placeholder="Cluster Security Key"
+        value="showmethemoney"
+      />
+      <input id="serviceInput" placeholder="Cluster Service" value="WEB" />
+      <button id="connectBtn">Подключиться</button>
     </div>
 
-    <div id="messages"></div>
+    <div id="subscribeSection" style="display: none">
+      <input id="channelInput" placeholder="Имя канала" />
+      <button id="subscribeBtn">Подписаться на канал</button>
+    </div>
 
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <div id="chatSection" style="display: none">
+      <h2>Канал: <span id="currentChannel"></span></h2>
+      <div id="messages"></div>
+      <input id="messageInput" placeholder="Ваше сообщение" />
+      <button id="sendBtn">Отправить</button>
+    </div>
+
     <script>
       let socket;
+      let currentChannel = '';
 
-      function connect() {
-        const apiKey = document.getElementById('apiKey').value;
-        const channel = document.getElementById('channel').value;
+      document
+        .getElementById('messageInput')
+        .addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault(); // чтобы не было переноса строки
+            sendMessage();
+          }
+        });
 
-        if (!apiKey || !channel) {
-          alert('Please enter both API Key and Channel name');
-          return;
-        }
+      function sendMessage() {
+        const text = document.getElementById('messageInput').value;
+        if (!text) return;
+
+        socket.emit('event.send', {
+          topic: currentChannel,
+          payload: text,
+        });
+
+        document.getElementById('messageInput').value = '';
+      }
+
+      document.getElementById('sendBtn').onclick = sendMessage;
+
+      document.getElementById('connectBtn').onclick = () => {
+        const apiKey = document.getElementById('apiKeyInput').value;
+        const service = document.getElementById('serviceInput').value || 'WEB';
 
         socket = io('http://localhost:3002', {
           auth: {
             clusterSecurityKey: apiKey,
-            clusterService: 'WEB',
+            clusterService: service,
           },
         });
 
         socket.on('connect', () => {
-          console.log('Connected to Echo server');
-          socket.emit('topic.subscribe', channel);
-          addMessage('Connected and subscribed to "' + channel + '"');
+          console.log('Connected');
+          document.getElementById('subscribeSection').style.display = 'block';
         });
 
+        socket.on('connect_error', (err) => {
+          console.error('Connection error:', err.message);
+          alert('Ошибка подключения: ' + err.message);
+        });
+
+        // Слушаем входящие сообщения по событию event.receive
         socket.on('event.receive', (data) => {
-          console.log('Received event:', data);
-          addMessage('Received: ' + JSON.stringify(data));
+          // Получаем текущее время в формате HH:MM:SS
+          const now = new Date();
+          const time = now.toLocaleTimeString('ru-RU', { hour12: false });
+
+          const messagesDiv = document.getElementById('messages');
+          const messageEl = document.createElement('div');
+          messageEl.className = 'message';
+          messageEl.textContent = `[  ${time}] ${data}`;
+          messagesDiv.appendChild(messageEl);
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
+      };
 
-        socket.on('error', (err) => {
-          console.error('Error:', err);
-          addMessage('Error: ' + err);
-        });
-      }
+      document.getElementById('subscribeBtn').onclick = () => {
+        const channel = document.getElementById('channelInput').value;
+        if (!channel) return;
 
-      function sendTest() {
-        const channel = document.getElementById('channel').value;
-        if (!socket || !socket.connected) {
-          alert('Please connect first!');
-          return;
-        }
+        currentChannel = channel;
+        document.getElementById('currentChannel').innerText = currentChannel;
+        document.getElementById('chatSection').style.display = 'block';
 
-        const payload = {
-          title: 'Test Event',
-          body: 'This is a test message',
-        };
+        // Подписываемся через topic.subscribe
+        socket.emit('topic.subscribe', channel);
 
-        socket.emit('event.send', {
-          topic: channel,
-          payload: payload,
-        });
-
-        addMessage('Test event sent to "' + channel + '"');
-      }
-
-      function addMessage(msg) {
-        const messages = document.getElementById('messages');
-        const div = document.createElement('div');
-        div.className = 'message';
-        div.innerText = msg;
-        messages.appendChild(div);
-        messages.scrollTop = messages.scrollHeight;
-      }
+        console.log('Subscribed to', channel);
+      };
     </script>
   </body>
 </html>
