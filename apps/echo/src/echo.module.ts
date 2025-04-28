@@ -7,7 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EchoGateway } from './echo.gateway';
 
 import configuration from './config/configuration';
-import { MonologClient } from 'apps/monolog/src/monolog.client';
+import { MonologClient } from '../../monolog/src/monolog.client';
 
 @Module({
   imports: [

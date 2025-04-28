@@ -5,9 +5,11 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { WsAdapter } from '@nestjs/platform-ws';
 
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from '../../common/filters/all-exception.filter';
+import fastifyCors from '@fastify/cors';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -18,6 +20,11 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
+  await app.register(fastifyCors, {
+    credentials: true,
+  });
+
+  app.useWebSocketAdapter(new WsAdapter(app));
   app.enableShutdownHooks();
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(
