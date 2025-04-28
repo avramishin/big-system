@@ -112,7 +112,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.ping();
 
     const timeout = setTimeout(() => {
-      this.debug('NO_PONG_DISCONN %s', (client as any).id);
+      this.debug('NO_PONG_RECEIVED %s', (client as any).id);
       client.terminate();
     }, this.PONG_TIMEOUT);
 
@@ -142,6 +142,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (client.readyState === WebSocket.OPEN) {
         client.send(message);
       } else {
+        this.debug('SOCK_NO_OPEN_ON_BROADCAST %s', (client as any).id);
         client.terminate();
       }
     });
@@ -164,7 +165,6 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       };
     }
 
-    // Проверяем заголовки Authorization: Bearer <api-key>
     clusterSecurityKey = request.headers['x-cluster-security-key'] as string;
     clusterService = request.headers['x-cluster-service'] as string;
 
