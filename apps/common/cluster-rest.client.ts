@@ -29,7 +29,7 @@ export abstract class ClusterRestClient {
     config: AxiosRequestConfig,
   ): Promise<T> {
     const headers: Record<string, string> = {
-      'X-CSK': this.clusterClientKey,
+      'X-CCK': this.clusterClientKey,
       'X-CCN': this.clusterClientName || 'UNKNOWN',
     };
 
