@@ -3,7 +3,7 @@ import { MonologService } from './monolog.service';
 import { CreateLogDto } from './dto/create-log.dto';
 import { SearchLogsDto } from './dto/search-logs.dto';
 import { parseSafeJson } from '../../common/parse-safe-json';
-import { ClusterService } from 'apps/common/decorators/cluster-service.decorator';
+import { ClusterClientName } from 'apps/common/decorators/cluster-client-name.decorator';
 
 @Controller()
 export class MonologController {
@@ -11,7 +11,7 @@ export class MonologController {
 
   @Post('v1/logs')
   async register(
-    @ClusterService() clusterService: string,
+    @ClusterClientName() clusterService: string,
     @Body() dto: CreateLogDto,
   ) {
     return await this.monologService.createLog(dto, clusterService);

@@ -22,39 +22,38 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleConnection(client: WebSocket, request: IncomingMessage) {
     try {
+      const creds = this.extractCredentials(request);
       (client as any).id = crypto.randomBytes(4).toString('hex');
-      const credentials = this.extractCredentials(request);
-      if (
-        credentials?.clusterSecurityKey !=
-        this.configService.get('ECHO_CLUSTER_SECURITY_KEY')
-      ) {
+      if (creds?.cck != this.configService.get('CLUSTER_CLIENT_KEY')) {
         this.debug('CLIENT_UNAUTHORIZED %o', {
           client_id: (client as any).id,
-          credentials,
+          creds,
         });
-        client.close(4401, 'UNAUTHORIZED');
+        client.close(3000, 'UNAUTHORIZED');
         return;
       }
 
-      (client as any).credentials = credentials;
+      (client as any).cck = creds.cck;
+      (client as any).ccn = creds.ccn;
 
       this.debug('CLIENT_CONN %o', {
-        service: credentials.clusterService,
-        client_id: (client as any).id,
+        id: (client as any).id,
+        ccn: creds.ccn,
       });
 
       client.on('pong', () => this.handlePong(client));
 
       this.setupPingInterval(client);
 
-      client.on('message', (message: Buffer) => {
+      client.on('message', (msg: Buffer) => {
         try {
-          this.broadcast(message.toString());
+          this.broadcast(msg.toString());
         } catch (e) {
           this.debug('BROADCAST_ERROR %o', {
+            id: (client as any).id,
+            ccn: (client as any).ccn,
             error: e.message || e,
-            message,
-            client_id: (client as any).id,
+            msg,
           });
         }
       });
@@ -62,10 +61,12 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.debug('CONNECTED_CLIENTS %s', this.clients.size);
     } catch (e) {
       this.debug('INIT_CONN_ERROR %o', {
+        id: (client as any).id,
+        ccn: (client as any).ccn,
         error: e.message || e,
-        client_id: (client as any).id,
       });
-      client.close(4403, 'Forbidden');
+
+      client.close(4001, 'INIT_CONN_ERROR');
     }
   }
 
@@ -82,8 +83,8 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: WebSocket) {
     this.debug('CLIENT_DICCONN %o', {
-      service: (client as any).credentials?.clusterService,
-      client_id: (client as any).id,
+      id: (client as any).id,
+      ccn: (client as any).ccn,
     });
 
     this.cleanupClient(client);
@@ -150,31 +151,24 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private extractCredentials(
     request: IncomingMessage,
-  ): { clusterSecurityKey: string; clusterService: string } | null {
+  ): { cck: string; ccn: string } | null {
     const url = new URL(request.url, `http://${request.headers.host}`);
-    let clusterSecurityKey: string;
-    let clusterService: string;
 
-    clusterSecurityKey = url.searchParams.get('cluster_security_key');
-    clusterService = url.searchParams.get('cluster_service');
+    const result = {
+      cck: null,
+      ccn: null,
+    };
 
-    if (clusterSecurityKey && clusterService) {
-      return {
-        clusterSecurityKey,
-        clusterService,
-      };
+    result.cck = url.searchParams.get('cck');
+    result.ccn = url.searchParams.get('ccn');
+
+    if (result.cck && result.ccn) {
+      return result;
     }
 
-    clusterSecurityKey = request.headers['x-cluster-security-key'] as string;
-    clusterService = request.headers['x-cluster-service'] as string;
+    result.cck = request.headers['x-cck'] as string;
+    result.cck = request.headers['x-ccn'] as string;
 
-    if (clusterSecurityKey && clusterService) {
-      return {
-        clusterSecurityKey,
-        clusterService,
-      };
-    }
-
-    return null;
+    return result;
   }
 }

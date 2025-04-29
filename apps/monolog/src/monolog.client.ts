@@ -9,17 +9,17 @@ export class MonologClient extends ClusterRestClient {
    * Provides methods to create, search and delete logs
    *
    * @param baseUrl - Base URL of the Monolog service
-   * @param cluster_sercurity_key - Security key for cluster authentication
-   * @param source - Optional source identifier
+   * @param clusterClientKey - Security key for cluster authentication
+   * @param clusterClientName - Optional source identifier
    * @param timeout - Optional request timeout in milliseconds
    */
   constructor(
     baseUrl: string,
-    cluster_sercurity_key: string,
-    source?: string,
+    clusterClientKey: string,
+    clusterClientName: string,
     timeout?: number,
   ) {
-    super(baseUrl, cluster_sercurity_key, source, timeout);
+    super(baseUrl, clusterClientKey, clusterClientName, timeout);
   }
 
   /**
@@ -44,8 +44,8 @@ export class MonologClient extends ClusterRestClient {
       }),
     );
 
-    // Send data to remote service only in case if base_url and cluster_sercurity_key is set
-    if (this.baseUrl && this.cluster_security_key) {
+    // Send data to remote service only in case if base_url and clusterClientKey is set
+    if (this.baseUrl && this.clusterClientKey) {
       try {
         return await this.request<number[]>('/logs', {
           method: 'POST',
