@@ -26,14 +26,6 @@ export class CreateLogDto {
   exp: MonologLogTtl;
 
   @IsOptional()
-  @IsNotEmpty()
-  @Length(8, 8, {
-    message:
-      'RRN is optional, if passed should be 8 chars, like A4093200, 44EA2CF5 ....',
-  })
-  rrn?: string;
-
-  @IsOptional()
   ctx?: any;
 
   @IsOptional()

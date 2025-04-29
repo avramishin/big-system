@@ -1,7 +1,11 @@
 import { MonologLogTtl } from '../enums/monolog-log-ttl.enum';
 import { MonologClient } from '../monolog.client';
 
-const monolog = new MonologClient('http://localhost:3001/v1', '124567890');
+const monolog = new MonologClient({
+  baseUrl: 'http://localhost:3001/v1',
+  clusterClientName: 'TEST',
+  clusterClientKey: 'showmethemoney',
+});
 
 async function main() {
   const log = await monolog.register({

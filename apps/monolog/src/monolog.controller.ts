@@ -31,11 +31,11 @@ export class MonologController {
 
   @Delete('v1/logs/delete-expired')
   async deleteExpired() {
-    return await this.monologService.deleteExpiredLogs();
+    return await this.monologService.deleteExpired();
   }
 
   @Delete('v1/logs/delete-all')
   async deleteAll() {
-    return await this.monologService.deleteAllLogs();
+    return await this.monologService.deleteAll();
   }
 }

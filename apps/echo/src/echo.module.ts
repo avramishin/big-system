@@ -28,9 +28,11 @@ import { MonologClient } from '../../monolog/src/monolog.client';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         return new MonologClient(
-          configService.get('ECHO_MONOLOG_URL'),
-          configService.get('CLUSTER_CLIENT_KEY'),
-          'ECHO',
+          {
+            baseUrl: configService.get('ECHO_MONOLOG_URL'),
+            clusterClientKey: configService.get('CLUSTER_CLIENT_KEY'),
+            clusterClientName: 'ECHO',
+          },
           5_000,
         );
       },

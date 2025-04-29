@@ -1,53 +1,28 @@
-import { ClusterRestClient } from '../../common/cluster-rest.client';
+import {
+  ClusterRestClient,
+  ClusterRestClientCredentials,
+} from '../../common/cluster-rest.client';
 import { MonologLog } from './database/entities/monolog_log.entity';
 import { CreateLogDto } from './dto/create-log.dto';
 import { SearchLogsDto } from './dto/search-logs.dto';
 
 export class MonologClient extends ClusterRestClient {
-  /**
-   * Client for interacting with the Monolog service
-   * Provides methods to create, search and delete logs
-   *
-   * @param baseUrl - Base URL of the Monolog service
-   * @param clusterClientKey - Security key for cluster authentication
-   * @param clusterClientName - Optional source identifier
-   * @param timeout - Optional request timeout in milliseconds
-   */
-  constructor(
-    baseUrl: string,
-    clusterClientKey: string,
-    clusterClientName: string,
-    timeout?: number,
-  ) {
-    super(baseUrl, clusterClientKey, clusterClientName, timeout);
+  constructor(credentials: ClusterRestClientCredentials, timeout?: number) {
+    super(credentials, timeout);
   }
 
-  /**
-   * Create a new log entry
-   *
-   * @param log - Log data containing:
-   *   - svc: service name generating the log
-   *   - msg: log message text
-   *   - ctx: optional context object
-   *   - rrn: optional reference number
-   *   - exp: expiration time in seconds
-   *   - keywords: optional keywords to search across kw_1 through kw_10 fields
-   * @returns Number of logs created
-   */
   async register(log: CreateLogDto) {
     // Always write to console log
     console.log(
       JSON.stringify({
         message: log.msg,
         ctx: log.ctx,
-        rrn: log.rrn,
       }),
     );
 
-    // Send data to remote service only in case if base_url and clusterClientKey is set
-    if (this.baseUrl && this.clusterClientKey) {
+    if (this.credentials.baseUrl && this.credentials.clusterClientKey) {
       try {
-        return await this.request<number[]>('/logs', {
+        return await this.request<string>('/logs', {
           method: 'POST',
           data: { ...log },
         });
@@ -62,20 +37,6 @@ export class MonologClient extends ClusterRestClient {
     }
   }
 
-  /**
-   * Search for logs based on provided criteria
-   *
-   * @param searchLogsDto - Search criteria containing:
-   *   - limit: optional limit for pagination
-   *   - offset: offset for pagination
-   *   - time_from: optional from/to timestamp milliseconds to filter by
-   *   - time_to: optional from/to timestamp milliseconds to filter by
-   *   - msg: optional message prefix to filter by
-   *   - rrn: optional reference number to filter by
-   *   - svc: optional service name to filter by
-   *   - keyword: optional keyword to search across kw_1 through kw_10 fields
-   * @returns Array of logs matching the search criteria
-   */
   async search(searchLogsDto: SearchLogsDto) {
     return await this.request<MonologLog[]>('/logs/search', {
       method: 'GET',
@@ -89,6 +50,10 @@ export class MonologClient extends ClusterRestClient {
    * @returns Number of logs deleted
    */
   async deleteExpired() {
+    if (!this.credentials.clusterAdminKey) {
+      throw new Error('ADMIN_KEY_IS_REQUIRED');
+    }
+
     return await this.request<number>('/logs/delete-expired', {
       method: 'DELETE',
     });
@@ -100,6 +65,9 @@ export class MonologClient extends ClusterRestClient {
    * @returns Number of logs deleted
    */
   async deleteAll() {
+    if (!this.credentials.clusterAdminKey) {
+      throw new Error('ADMIN_KEY_IS_REQUIRED');
+    }
     return await this.request<number>('/logs/delete-all', {
       method: 'DELETE',
     });

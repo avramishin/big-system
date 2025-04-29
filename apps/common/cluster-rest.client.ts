@@ -1,23 +1,32 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
+export class ClusterRestClientCredentials {
+  baseUrl: string;
+  clusterClientName: string;
+  clusterClientKey: string;
+  clusterAdminKey?: string;
+}
+
 export abstract class ClusterRestClient {
   constructor(
-    protected baseUrl: string,
-    protected clusterClientKey: string,
-    protected clusterClientName: string,
+    protected credentials: ClusterRestClientCredentials,
     protected timeout?: number,
   ) {}
 
   setBaseUrl(baseUrl: string) {
-    this.baseUrl = baseUrl;
+    this.credentials.baseUrl = baseUrl;
   }
 
   setClusterClientKey(clusterClientKey: string) {
-    this.clusterClientKey = clusterClientKey;
+    this.credentials.clusterClientKey = clusterClientKey;
+  }
+
+  setClusterAdminKey(clusterAminKey: string) {
+    this.credentials.clusterAdminKey = clusterAminKey;
   }
 
   setClusterClientName(clusterClientName: string) {
-    this.clusterClientName = clusterClientName;
+    this.credentials.clusterClientName = clusterClientName;
   }
 
   setTimeout(timeout: number) {
@@ -29,15 +38,19 @@ export abstract class ClusterRestClient {
     config: AxiosRequestConfig,
   ): Promise<T> {
     const headers: Record<string, string> = {
-      'X-CCK': this.clusterClientKey,
-      'X-CCN': this.clusterClientName || 'UNKNOWN',
+      'X-CCK': this.credentials?.clusterClientKey || 'UNKNOWN',
+      'X-CCN': this.credentials?.clusterClientName || 'UNKNOWN',
     };
+
+    if (this.credentials.clusterAdminKey) {
+      headers['X-CAK'] = this.credentials?.clusterAdminKey || 'UNKNOWN';
+    }
 
     try {
       const response = await axios<T>({
         headers,
         timeout: this.timeout,
-        url: `${this.baseUrl}${path}`,
+        url: `${this.credentials.baseUrl}${path}`,
         ...config,
       });
       return response.data;
