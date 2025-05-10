@@ -3,7 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { MigrationSource } from './migrations';
 import { resolve as resolvePath } from 'path';
 import { waitFor } from '../../../common/wait-for';
+
 import knex, { Knex } from 'knex';
+import debug from 'debug';
 
 @Global()
 @Module({
@@ -13,12 +15,13 @@ import knex, { Knex } from 'knex';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         let instance: Knex;
+        let _d = debug('DatabaseModule:useFactory');
 
         if (configService.get<string>('MONOLOG_DB_TYPE') == 'sqlite') {
           const filename = resolvePath(
             `${__dirname}/../../../storage/monolog.sqlite`,
           );
-          console.info(`SQLITE DB FILE: ${filename}`);
+          _d('SQLITE_DB_FILE: %s', filename);
           instance = knex({
             client: 'better-sqlite3',
             asyncStackTraces: true,
@@ -47,11 +50,11 @@ import knex, { Knex } from 'knex';
             e.message.match('MigrationLocked') ||
             e.message.match('Migration table is already locked')
           ) {
-            console.warn('Wait for migrations in other process ...');
+            _d('WAIT_MIGRATIONS_OTHER_PROCESS');
             await waitFor(15_000);
             process.exit(0);
           } else {
-            console.error(e);
+            _d('MIGRATIONS_ERROR: %s', e.message);
             throw new Error(e.message);
           }
         }

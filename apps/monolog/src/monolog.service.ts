@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateLogDto } from './dto/create-log.dto';
-import { MonologLog } from './database/entities/monolog_log.entity';
+import { MonologLog } from './database/entities/monolog-log.entity';
 import { integerHash } from '../../common/integer-hash';
 import { Knex } from 'knex';
 import { SearchLogsDto } from './dto/search-logs.dto';
@@ -11,7 +11,7 @@ import debug from 'debug';
 @Injectable()
 export class MonologService {
   private TABLE_LOGS = 'monolog_logs';
-  private debug = debug(MonologService.name);
+  private _d = debug(MonologService.name);
 
   constructor(@Inject('db') private db: Knex) {}
 
@@ -61,7 +61,7 @@ export class MonologService {
 
       result = await query;
     } catch (e) {
-      this.debug('SEARCH_ERROR %s', e.message);
+      this._d('SEARCH_ERROR %s %o', e.message, dto);
     }
 
     return result;
@@ -73,9 +73,7 @@ export class MonologService {
     if (dto.ctx) {
       ctx = JSON.stringify(dto.ctx);
       if (ctx.length > 65536) {
-        throw new BadRequestException(
-          'Context data is to large, must be less than 65536 when strigified',
-        );
+        throw new BadRequestException('CTX_DATA_TOO_LARGE');
       }
     }
 
@@ -105,7 +103,7 @@ export class MonologService {
     try {
       await this.db<MonologLog>(this.TABLE_LOGS).insert(record);
     } catch (e) {
-      this.debug('INSERT_ERROR %s', e.message);
+      this._d('INSERT_ERROR %s', e.message);
     }
 
     return rrn;
@@ -122,7 +120,7 @@ export class MonologService {
         .where('expires_at', '<', new Date().valueOf())
         .delete();
     } catch (e) {
-      this.debug('DELETE_EXP_ERROR %s', e.message);
+      this._d('DELETE_EXP_ERROR %s', e.message);
     }
 
     return affectedRows;
@@ -133,7 +131,7 @@ export class MonologService {
     try {
       affectedRows = await this.db<MonologLog>(this.TABLE_LOGS).delete();
     } catch (e) {
-      this.debug('DELETE_ALL_ERROR %s', e.message);
+      this._d('DELETE_ALL_ERROR %s', e.message);
     }
   }
 }

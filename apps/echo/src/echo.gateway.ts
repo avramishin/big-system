@@ -16,7 +16,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private PONG_TIMEOUT = 10000;
 
   private clients: Map<WebSocket, NodeJS.Timeout> = new Map();
-  private debug = debug(EchoGateway.name);
+  private _d = debug(EchoGateway.name);
 
   constructor(private configService: ConfigService) {}
 
@@ -25,7 +25,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const creds = this.extractCredentials(request);
       (client as any).id = crypto.randomBytes(4).toString('hex');
       if (creds?.cck != this.configService.get('CLUSTER_CLIENT_KEY')) {
-        this.debug('CLIENT_UNAUTHORIZED %o', {
+        this._d('CLIENT_UNAUTHORIZED %o', {
           client_id: (client as any).id,
           creds,
         });
@@ -36,7 +36,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       (client as any).cck = creds.cck;
       (client as any).ccn = creds.ccn;
 
-      this.debug('CLIENT_CONN %o', {
+      this._d('CLIENT_CONN %o', {
         id: (client as any).id,
         ccn: creds.ccn,
       });
@@ -49,7 +49,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
         try {
           this.broadcast(msg.toString());
         } catch (e) {
-          this.debug('BROADCAST_ERROR %o', {
+          this._d('BROADCAST_ERROR %o', {
             id: (client as any).id,
             ccn: (client as any).ccn,
             error: e.message || e,
@@ -58,9 +58,9 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       });
 
-      this.debug('CONNECTED_CLIENTS %s', this.clients.size);
+      this._d('CONNECTED_CLIENTS %s', this.clients.size);
     } catch (e) {
-      this.debug('INIT_CONN_ERROR %o', {
+      this._d('INIT_CONN_ERROR %o', {
         id: (client as any).id,
         ccn: (client as any).ccn,
         error: e.message || e,
@@ -82,7 +82,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: WebSocket) {
-    this.debug('CLIENT_DICCONN %o', {
+    this._d('CLIENT_DICCONN %o', {
       id: (client as any).id,
       ccn: (client as any).ccn,
     });
@@ -91,7 +91,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   private handlePong(client: WebSocket) {
-    this.debug('GOT_PONG %s', (client as any).id);
+    this._d('GOT_PONG %s', (client as any).id);
 
     const timeout = (client as any).pingTimeout;
 
@@ -102,10 +102,10 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   private sendPing(client: WebSocket) {
-    this.debug('SEND_PING %s', (client as any).id);
+    this._d('SEND_PING %s', (client as any).id);
 
     if (client.readyState !== WebSocket.OPEN) {
-      this.debug('SOCK_NO_OPEN_ON_PING %s', (client as any).id);
+      this._d('SOCK_NO_OPEN_ON_PING %s', (client as any).id);
       client.terminate();
       return;
     }
@@ -113,7 +113,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.ping();
 
     const timeout = setTimeout(() => {
-      this.debug('NO_PONG_RECEIVED %s', (client as any).id);
+      this._d('NO_PONG_RECEIVED %s', (client as any).id);
       client.terminate();
     }, this.PONG_TIMEOUT);
 
@@ -128,14 +128,14 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   private cleanupClient(client: WebSocket) {
-    this.debug('CLEANUP_CLIENT %s', (client as any).id);
+    this._d('CLEANUP_CLIENT %s', (client as any).id);
     this.cleanupPingInterval(client);
     const timeout = (client as any).pingTimeout;
     if (timeout) {
       clearTimeout(timeout);
     }
     this.clients.delete(client);
-    this.debug('CONNECTED_CLIENTS %s', this.clients.size);
+    this._d('CONNECTED_CLIENTS %s', this.clients.size);
   }
 
   private broadcast(message: string) {
@@ -143,7 +143,7 @@ export class EchoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (client.readyState === WebSocket.OPEN) {
         client.send(message);
       } else {
-        this.debug('SOCK_NO_OPEN_ON_BROADCAST %s', (client as any).id);
+        this._d('SOCK_NO_OPEN_ON_BROADCAST %s', (client as any).id);
         client.terminate();
       }
     });

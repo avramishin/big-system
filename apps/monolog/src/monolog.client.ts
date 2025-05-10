@@ -2,24 +2,21 @@ import {
   ClusterRestClient,
   ClusterRestClientCredentials,
 } from '../../common/cluster-rest.client';
-import { MonologLog } from './database/entities/monolog_log.entity';
+import { MonologLog } from './database/entities/monolog-log.entity';
 import { CreateLogDto } from './dto/create-log.dto';
 import { SearchLogsDto } from './dto/search-logs.dto';
 
+import debug from 'debug';
+
 export class MonologClient extends ClusterRestClient {
+  private logger = debug(MonologClient.name);
+
   constructor(credentials: ClusterRestClientCredentials, timeout?: number) {
     super(credentials, timeout);
   }
 
   async register(log: CreateLogDto) {
-    // Always write to console log
-    console.log(
-      JSON.stringify({
-        message: log.msg,
-        ctx: log.ctx,
-      }),
-    );
-
+    this.logger(`%s %o`, log.msg, log.ctx);
     if (this.credentials.baseUrl && this.credentials.clusterClientKey) {
       try {
         return await this.request<string>('/logs', {
@@ -27,12 +24,7 @@ export class MonologClient extends ClusterRestClient {
           data: { ...log },
         });
       } catch (e) {
-        console.error(
-          JSON.stringify({
-            message: 'MONOLOG_REGISTER_ERROR',
-            error: e.message,
-          }),
-        );
+        this.logger('MONOLOG_REGISTER_ERROR %s', e.message);
       }
     }
   }

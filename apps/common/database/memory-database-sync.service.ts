@@ -32,11 +32,11 @@ export class MemoryDatabaseSyncService implements OnModuleInit {
   }
 
   startSync() {
+    this._d('START_SYNC_INTERVAL %d', this.syncIntervalMs);
+
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
     }
-
-    this._d('START_SYNC_INTERVAL %d', this.syncIntervalMs);
 
     this.syncInterval = setInterval(
       () => this.safeSyncCollections(),
@@ -45,8 +45,9 @@ export class MemoryDatabaseSyncService implements OnModuleInit {
   }
 
   stopSync() {
+    this._d('STOP_SYNC_CLEAR_INTERVAL');
+
     if (this.syncInterval) {
-      this._d('STOP_SYNC_CLEAR_INTERVAL');
       clearInterval(this.syncInterval);
       this.syncInterval = null;
     }
@@ -57,7 +58,9 @@ export class MemoryDatabaseSyncService implements OnModuleInit {
       this._d('SYNC_IN_PROGRESS_SKIP_CYCLE');
       return;
     }
+
     this.isSyncing = true;
+
     try {
       await this.syncCollections();
     } finally {
