@@ -7,7 +7,7 @@ export interface ChangeLog {
   data: Record<string, any>;
 }
 
-export class DatabaseCollection<T extends { id: string }> {
+export class MomoryDatabaseCollection<T extends { id: string }> {
   protected collection: Map<string, T> = new Map();
   protected changes: ChangeLog[] = [];
   protected tableName: string;

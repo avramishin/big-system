@@ -7,8 +7,12 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
+import debug from 'debug';
+
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+  private _d = debug(AllExceptionsFilter.name);
+
   catch(e: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<FastifyReply>();
@@ -26,14 +30,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = message.join(', ');
     }
 
-    console.error(
-      JSON.stringify({
-        message,
-        url: req.url,
-        body: req.body,
-        query: req.query,
-      }),
-    );
+    this._d(`${message} %o`, {
+      url: req.url,
+      status,
+      body: req.body,
+      query: req.query,
+    });
 
     res.status(status).send({
       statusCode: status,

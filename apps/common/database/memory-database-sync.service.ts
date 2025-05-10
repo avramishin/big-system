@@ -1,29 +1,33 @@
 import { Knex } from 'knex';
-import { DatabaseCollection } from './database-collection';
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
+import { MomoryDatabaseCollection } from './memory-database-collection';
 
+import assert from 'assert';
 import debug from 'debug';
 
 @Injectable()
-export class DatabaseSyncService implements OnModuleInit {
-  private _d = debug(DatabaseSyncService.name);
+export class MemoryDatabaseSyncService implements OnModuleInit {
+  private _d = debug(MemoryDatabaseSyncService.name);
 
   constructor(@Inject('db') protected db: Knex) {}
 
-  private collections: DatabaseCollection<any>[] = [];
+  private collections: MomoryDatabaseCollection<any>[] = [];
   private syncInterval: NodeJS.Timeout | null = null;
-
+  private batchSize = 100;
+  private syncIntervalMs = 200;
   private isSyncing: boolean = false;
 
   async onModuleInit() {
     this.startSync();
   }
 
-  getAllDataFromDatabase(collection: DatabaseCollection<any>) {
+  getAllDataFromDatabase(collection: MomoryDatabaseCollection<any>) {
+    this._d('GET_ALL_DATA_FROM_DB %s', collection.getTableName());
     return this.db(collection.getTableName()).select('*');
   }
 
-  addCollection(collection: DatabaseCollection<any>) {
+  addCollection(collection: MomoryDatabaseCollection<any>) {
+    this._d('ADD_COLLECTION %s', collection.getTableName());
     this.collections.push(collection);
   }
 
@@ -32,11 +36,17 @@ export class DatabaseSyncService implements OnModuleInit {
       clearInterval(this.syncInterval);
     }
 
-    this.syncInterval = setInterval(() => this.safeSyncCollections(), 200);
+    this._d('START_SYNC_INTERVAL %d', this.syncIntervalMs);
+
+    this.syncInterval = setInterval(
+      () => this.safeSyncCollections(),
+      this.syncIntervalMs,
+    );
   }
 
   stopSync() {
     if (this.syncInterval) {
+      this._d('STOP_SYNC_CLEAR_INTERVAL');
       clearInterval(this.syncInterval);
       this.syncInterval = null;
     }
@@ -82,13 +92,15 @@ export class DatabaseSyncService implements OnModuleInit {
             .map((item) => item.data);
 
           if (collection.isImmutable()) {
-            if (updates.length > 0) {
-              throw new Error('IMMUTABLE_COLLECTION_UPDATES');
-            }
+            assert(
+              updates.length === 0,
+              'IMMUTABLE_COLLECTION_UPDATES_DETECTED',
+            );
 
-            if (deletes.length > 0) {
-              throw new Error('IMMUTABLE_COLLECTION_DELETES');
-            }
+            assert(
+              deletes.length === 0,
+              'IMMUTABLE_COLLECTION_DELETES_DETECTED',
+            );
           }
 
           if (inserts.length > 0) {
@@ -101,7 +113,7 @@ export class DatabaseSyncService implements OnModuleInit {
             while (inserts.length > 0) {
               await this.db(collection.getTableName())
                 .transacting(trx)
-                .insert(inserts.splice(0, 100));
+                .insert(inserts.splice(0, this.batchSize));
             }
           }
 
@@ -133,10 +145,10 @@ export class DatabaseSyncService implements OnModuleInit {
         );
       }
     } catch (e) {
+      this._d('SYNC_ERROR: %s', e.message);
       if (trx) {
         await trx.rollback();
       }
-      this._d('SYNC_ERROR: %s', e.message);
     }
   }
 }

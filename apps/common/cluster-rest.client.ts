@@ -1,4 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import debug from 'debug';
+import assert from 'assert';
 
 export class ClusterRestClientCredentials {
   baseUrl: string;
@@ -8,12 +10,15 @@ export class ClusterRestClientCredentials {
 }
 
 export abstract class ClusterRestClient {
+  private _d = debug(ClusterRestClient.name);
+
   constructor(
     protected credentials: ClusterRestClientCredentials,
     protected timeout?: number,
   ) {}
 
   setBaseUrl(baseUrl: string) {
+    assert(baseUrl, 'BASE_URL_SHOULD_NOT_BE_EMPTY');
     this.credentials.baseUrl = baseUrl;
   }
 
@@ -30,6 +35,7 @@ export abstract class ClusterRestClient {
   }
 
   setTimeout(timeout: number) {
+    assert(timeout, 'TIMEOUT_SHOULD_NOT_BE_EMPTY');
     this.timeout = timeout;
   }
 
@@ -37,6 +43,8 @@ export abstract class ClusterRestClient {
     path: string,
     config: AxiosRequestConfig,
   ): Promise<T> {
+    assert(this.credentials.baseUrl, 'BASE_URL_NOT_SET');
+
     const headers: Record<string, string> = {
       'X-CCK': this.credentials?.clusterClientKey || 'UNKNOWN',
       'X-CCN': this.credentials?.clusterClientName || 'UNKNOWN',
@@ -55,7 +63,7 @@ export abstract class ClusterRestClient {
       });
       return response.data;
     } catch (e) {
-      const message =
+      const msg =
         e.response?.data?.message ||
         e.response?.data?.error ||
         `HTTP: ${e.message}`;
@@ -67,7 +75,10 @@ export abstract class ClusterRestClient {
           .replace(/\s+/g, ' ')
           .slice(0, 1024);
       }
-      throw new Error(message);
+
+      this._d('ERROR: %s', msg);
+
+      throw new Error(msg);
     }
   }
 }
