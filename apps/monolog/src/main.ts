@@ -30,8 +30,7 @@ async function bootstrap() {
   await app.init();
 
   const port = configService.get<number>('MONOLOG_PORT');
-  console.log(`MONOLOG PORT ${port}`);
-
+  console.log(`⚡️ MONOLOG IS RUNNING AT http://localhost:${port}`);
   await app.listen(port, '0.0.0.0');
 }
 bootstrap();

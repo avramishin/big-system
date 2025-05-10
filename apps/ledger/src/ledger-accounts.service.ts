@@ -21,9 +21,14 @@ export class LedgerAccountsService
   }
 
   async onModuleInit() {
-    const data = await this.databaseSyncService.getAllDataFromDatabase(this);
-    this.setData(data);
-    this._d('LOADED %d RECORDS FROM %s', data.length, this.tableName);
+    try {
+      const data = await this.databaseSyncService.getAllDataFromDatabase(this);
+      this.setData(data);
+      this._d('LOADED %d RECORDS FROM %s', data.length, this.tableName);
+    } catch (e) {
+      this._d('MODULE_INIT_ERROR: %s TABLE: $s', e.message, this.tableName);
+      throw e;
+    }
   }
 
   getByUserWalletCurrencyOrFail(

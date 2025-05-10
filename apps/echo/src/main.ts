@@ -38,8 +38,7 @@ async function bootstrap() {
   await app.init();
 
   const port = configService.get<number>('ECHO_PORT');
-  console.log(`ECHO PORT ${port}`);
-
+  console.log(`⚡️ ECHO IS RUNNING AT http://localhost:${port}`);
   await app.listen(port, '0.0.0.0');
 }
 bootstrap();
