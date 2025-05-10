@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { AccountTransactionType } from '../enums/account-transaction-type.enum';
 
 export class LedgerAccountTransaction {
@@ -8,8 +9,13 @@ export class LedgerAccountTransaction {
   account_id: string;
   class?: string;
   type: AccountTransactionType;
-  amount: number;
-  post_balance: number;
+
+  @Transform(({ value }) => String(value))
+  amount: string;
+
+  @Transform(({ value }) => String(value))
+  post_balance: string;
+
   comment: string;
   created_at: string;
   created_by?: string;

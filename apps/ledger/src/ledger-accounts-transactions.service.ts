@@ -4,6 +4,7 @@ import { MemoryDatabaseSyncService } from '../../common/database/memory-database
 import { LedgerAccountTransaction } from './models/ledger-account-transaction.model';
 
 import debug from 'debug';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class LedgerAccountsTransactionsService
@@ -22,7 +23,7 @@ export class LedgerAccountsTransactionsService
   async onModuleInit() {
     try {
       const data = await this.databaseSyncService.getAllDataFromDatabase(this);
-      this.setData(data);
+      this.setData(plainToInstance(LedgerAccountTransaction, data));
       this._d('LOADED %d RECORDS FROM %s', data.length, this.tableName);
     } catch (e) {
       this._d('MODULE_INIT_ERROR: %s TABLE: $s', e.message, this.tableName);
