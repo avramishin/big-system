@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { DatabaseModule } from './database/database.module';
 import { LedgerController } from './ledger.controller';
 import { LedgerService } from './ledger.service';
+import { LedgerAccountsService } from './ledger-accounts.service';
 
 import configuration from './config/configuration';
 
@@ -20,6 +21,6 @@ import configuration from './config/configuration';
     DatabaseModule,
   ],
   controllers: [LedgerController],
-  providers: [LedgerService],
+  providers: [LedgerService, LedgerAccountsService],
 })
 export class LedgerModule {}

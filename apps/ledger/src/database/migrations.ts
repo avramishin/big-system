@@ -40,6 +40,7 @@ export class MigrationSource {
             await knex.schema.createTable('accounts_transactions', (table) => {
               table.uuid('id').primary();
               table.uuid('parent_transaction_id').nullable().index();
+              table.uuid('customer_transaction_id').nullable().index();
               table.uuid('user_id').notNullable().index();
               table.uuid('account_id').notNullable().index();
               table

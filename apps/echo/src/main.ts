@@ -1,5 +1,6 @@
+require('dotenv').config({ path: __dirname + '/../../../.env' });
+
 import { NestFactory } from '@nestjs/core';
-import { EchoModule } from './echo.module';
 import { ConfigService } from '@nestjs/config';
 import {
   FastifyAdapter,
@@ -9,6 +10,7 @@ import { WsAdapter } from '@nestjs/platform-ws';
 
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from '../../common/filters/all-exception.filter';
+import { EchoModule } from './echo.module';
 import fastifyCors from '@fastify/cors';
 
 async function bootstrap() {

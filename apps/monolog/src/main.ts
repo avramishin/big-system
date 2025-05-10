@@ -1,12 +1,13 @@
+require('dotenv').config({ path: __dirname + '/../../../.env' });
+
 import { NestFactory } from '@nestjs/core';
-import { MonologModule } from './monolog.module';
 import { ConfigService } from '@nestjs/config';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-
 import { ValidationPipe } from '@nestjs/common';
+import { MonologModule } from './monolog.module';
 import { AllExceptionsFilter } from '../../common/filters/all-exception.filter';
 
 async function bootstrap() {

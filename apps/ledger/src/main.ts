@@ -1,3 +1,5 @@
+require('dotenv').config({ path: __dirname + '/../../../.env' });
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

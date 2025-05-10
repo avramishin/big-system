@@ -12,13 +12,12 @@ import debug from 'debug';
 @Module({
   providers: [
     MemoryDatabaseSyncService,
-
     {
       provide: 'db',
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         let instance: Knex;
-        let _d = debug('DatabaseModule:useFactory');
+        let _d = debug(DatabaseModule.name);
 
         if (configService.get<string>('LEDGER_DB_TYPE') == 'sqlite') {
           const filename = resolvePath(
@@ -45,9 +44,11 @@ import debug from 'debug';
         }
 
         try {
+          _d('START_MIGRATIONS');
           await instance.migrate.latest({
             migrationSource: new MigrationSource(),
           });
+          _d('FINISH_MIGRATIONS');
         } catch (e) {
           if (
             e.message.match('MigrationLocked') ||
