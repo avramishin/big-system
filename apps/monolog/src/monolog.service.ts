@@ -1,8 +1,8 @@
+import { Knex } from 'knex';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateLogDto } from './dto/create-log.dto';
 import { MonologLog } from './database/entities/monolog-log.entity';
 import { integerHash } from '../../common/integer-hash';
-import { Knex } from 'knex';
 import { SearchLogsDto } from './dto/search-logs.dto';
 
 import crypto from 'crypto';

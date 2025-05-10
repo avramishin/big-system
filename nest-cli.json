@@ -28,6 +28,15 @@
         "tsConfigPath": "apps/echo/tsconfig.app.json"
       }
     },
+    "ledger": {
+      "type": "application",
+      "root": "apps/ledger",
+      "entryFile": "main",
+      "sourceRoot": "apps/ledger/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ledger/tsconfig.app.json"
+      }
+    },
     "monolog": {
       "type": "application",
       "root": "apps/monolog",
