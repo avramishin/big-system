@@ -10,7 +10,7 @@ export class LedgerAccountsService
   extends MomoryDatabaseCollection<LedgerAccount>
   implements OnModuleInit
 {
-  protected tableName = 'accounts';
+  protected tableName = 'ledger_accounts';
   protected userWalletCurrencyIndex = new Map<string, string>();
 
   private _d = debug(LedgerAccountsService.name);

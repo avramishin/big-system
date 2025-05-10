@@ -5,6 +5,7 @@ const monolog = new MonologClient({
   baseUrl: 'http://localhost:3001/v1',
   clusterClientName: 'TEST',
   clusterClientKey: 'showmethemoney',
+  clusterAdminKey: 'aaaa',
 });
 
 async function main() {
@@ -24,10 +25,10 @@ async function main() {
 
   console.log(logs);
 
-  const deleted = await monolog.deleteExpired();
+  const deleted = await monolog.adminDeleteExpiredRecords();
   console.log(deleted);
 
-  // const deletedAll = await monolog.deleteAll();
+  // const deletedAll = await monolog.adminDeleteAllRecords();
   // console.log(deletedAll);
 }
 

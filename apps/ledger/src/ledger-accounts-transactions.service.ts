@@ -10,7 +10,7 @@ export class LedgerAccountsTransactionsService
   extends MomoryDatabaseCollection<LedgerAccountTransaction>
   implements OnModuleInit
 {
-  protected tableName = 'accounts_transactions';
+  protected tableName = 'ledger_accounts_transactions';
   protected immutable = true;
   private _d = debug(LedgerAccountsTransactionsService.name);
 

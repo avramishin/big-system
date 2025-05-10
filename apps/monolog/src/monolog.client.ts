@@ -1,3 +1,4 @@
+import { assert } from 'console';
 import {
   ClusterRestClient,
   ClusterRestClientCredentials,
@@ -24,7 +25,7 @@ export class MonologClient extends ClusterRestClient {
           data: { ...log },
         });
       } catch (e) {
-        this.logger('MONOLOG_REGISTER_ERROR %s', e.message);
+        this.logger('REGISTER_ERROR %s', e.message);
       }
     }
   }
@@ -41,10 +42,8 @@ export class MonologClient extends ClusterRestClient {
    *
    * @returns Number of logs deleted
    */
-  async deleteExpired() {
-    if (!this.credentials.clusterAdminKey) {
-      throw new Error('ADMIN_KEY_IS_REQUIRED');
-    }
+  async adminDeleteExpiredRecords() {
+    assert(this.credentials?.clusterAdminKey, 'ADMIN_KEY_IS_REQUIRED');
 
     return await this.request<number>('/logs/delete-expired', {
       method: 'DELETE',
@@ -56,10 +55,8 @@ export class MonologClient extends ClusterRestClient {
    *
    * @returns Number of logs deleted
    */
-  async deleteAll() {
-    if (!this.credentials.clusterAdminKey) {
-      throw new Error('ADMIN_KEY_IS_REQUIRED');
-    }
+  async adminDeleteAllRecords() {
+    assert(this.credentials?.clusterAdminKey, 'ADMIN_KEY_IS_REQUIRED');
     return await this.request<number>('/logs/delete-all', {
       method: 'DELETE',
     });

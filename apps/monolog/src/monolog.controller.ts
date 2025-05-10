@@ -3,7 +3,7 @@ import { MonologService } from './monolog.service';
 import { CreateLogDto } from './dto/create-log.dto';
 import { SearchLogsDto } from './dto/search-logs.dto';
 import { parseSafeJson } from '../../common/parse-safe-json';
-import { ClusterClientName } from 'apps/common/decorators/cluster-client-name.decorator';
+import { ClusterClientName } from '../../common/decorators/cluster-client-name.decorator';
 
 @Controller()
 export class MonologController {
